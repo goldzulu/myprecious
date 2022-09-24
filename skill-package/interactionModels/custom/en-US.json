@@ -29,6 +29,18 @@
                     ]
                 },
                 {
+                    "name": "CheckNativeBalanceIntent",
+                    "slots": [],
+                    "samples": [
+                        "what is my wallet balance?",
+                        "wallet balance",
+                        "how much do i have",
+                        "check my balance please",
+                        "the balance of my wallet",
+                        "how rich am i"
+                    ]
+                },
+                {
                     "name": "AMAZON.NavigateHomeIntent",
                     "samples": []
                 }
