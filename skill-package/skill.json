@@ -29,7 +29,11 @@
       "distributionCountries": []
     },
     "apis": {
-      "custom": {}
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:us-east-1:722383165419:function:ask-myprecious-default-default-1664054437490"
+        }
+      }
     },
     "manifestVersion": "1.0"
   }

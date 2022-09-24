@@ -8,7 +8,7 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Welcome, I am your precious web3 voice wallet. Which would you like to know?';
+        const speakOutput = 'Welcome. I am your precious web3 voice wallet. Which would you like to know?';
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
