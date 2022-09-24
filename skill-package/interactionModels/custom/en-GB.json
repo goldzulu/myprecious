@@ -32,7 +32,7 @@
                     "name": "CheckNativeBalanceIntent",
                     "slots": [],
                     "samples": [
-                        "what is my wallet balance?",
+                        "what is my wallet balance",
                         "wallet balance",
                         "how much do i have",
                         "check my balance please",
