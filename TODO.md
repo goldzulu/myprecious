@@ -4,7 +4,7 @@ My Precious is the best web3 voice wallet out there.
 
 ## TODO
 
-- [ ] Add a way to check a wallet's native ETH balance given an address (hardcoded)
+- [x] Add a way to check a wallet's native ETH balance given an address (hardcoded)
 - [ ] Get the user wallet address
 - [ ] Get the user wallet native balance using user address
 
