@@ -2,6 +2,10 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
+const dotenv = require('dotenv').config();
+const axios = require('axios');
+
+const COVALENT_API_KEY = process.env.COVALENT_API_KEY;
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -33,14 +37,41 @@ const CheckNativeBalanceHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CheckNativeBalanceIntent';
     },
-    handle(handlerInput) {
-        const speakOutput = 'You have nothing. zilch. nada!';
+    async handle(handlerInput) {
+        // use axios to fetch data from covalenthq
+        const response = await axios.get('https://api.covalenthq.com/v1/1/address/goldzulu.eth/balances_v2/', {
+            params: {
+                'quote-currency': 'USD',
+                'format':'JSON',
+                'nft':'false',
+                'no-nft-fetch':'true',
+                'key':`${process.env.COVALENT_API_KEY}`
+            }
+        });
+
+        let tokens = response.data.data.items;
+
+        console.log(tokens);
+        let speakOutput = '';
+
+        tokens.map(async function(token) { // Map through the results and for each run the code below
+            if (token.native_token === true ) {
+                if (token.contract_decimals > 0) {
+                    balance = parseInt(token.balance) / Math.pow(10, token.contract_decimals);
+                } else {
+                    balance = parseInt(token.balance);
+                }
+                speakOutput = `You have ${balance.toFixed(4)} ${token.contract_name} in your wallet, worth ${parseFloat(token.quote).toFixed(2)} USD.`;
+            }
+        });
+
         return handlerInput.responseBuilder
             .speak(speakOutput)
             //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
             .getResponse();
     }
 };
+
 const HelpIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
