@@ -4,14 +4,52 @@
 const Alexa = require('ask-sdk-core');
 const dotenv = require('dotenv').config();
 const axios = require('axios');
+const { S3PersistenceAdapter } = require('ask-sdk-s3-persistence-adapter');
+
 
 const COVALENT_API_KEY = process.env.COVALENT_API_KEY;
+const SHORT_URL = process.env.SHORT_URL; // url to redirect the user to
+const URL= process.env.URL; // url for api calls to backend server
+const DEFAULT_CHAIN_ID = process.env.DEFAULT_CHAIN_ID;
+const DEFAULT_WALLET_ADDRESS = process.env.DEFAULT_WALLET_ADDRESS;
+const DEFAULT_ENS_ADDRESS = process.env.DEFAULT_ENS_ADDRESS;
+
+
+let walletData = {};
+let persistenceAdapter = new S3PersistenceAdapter({bucketName:process.env.S3_PERSISTENCE_BUCKET});
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
+
+        let {attributesManager} = handlerInput;
+        let persistentAttributes = await attributesManager.getPersistentAttributes();
+       
+        console.log("persistentAttributes: ", persistentAttributes);
+        if (!persistentAttributes.hasOwnProperty('walletData')) 
+        {
+            console.log("No persistence attributes found... setting defaults");
+            // set defaults if not available
+            persistentAttributes = {
+                defaultWalletAddress: DEFAULT_WALLET_ADDRESS,
+                defaultChainId: DEFAULT_CHAIN_ID,
+                defaultEnsAddress: DEFAULT_ENS_ADDRESS
+            };
+
+            attributesManager.setPersistentAttributes(persistentAttributes);
+            await attributesManager.savePersistentAttributes();
+            walletData=persistentAttributes;
+            console.log(walletData);
+        }
+
+        else {
+            console.log("persistence attributes found");
+            walletData=persistentAttributes;
+            console.log(walletData);
+        }
+
         const speakOutput = 'Welcome. I am your precious web3 voice wallet. Which would you like to know?';
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -38,14 +76,56 @@ const CheckNativeBalanceHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CheckNativeBalanceIntent';
     },
     async handle(handlerInput) {
+
+        console.log("walletData: ", walletData);
         // use axios to fetch data from covalenthq
-        const response = await axios.get('https://api.covalenthq.com/v1/1/address/goldzulu.eth/balances_v2/', {
+        const response = await axios.get(`https://api.covalenthq.com/v1/${walletData.defaultChainId}/address/${walletData.defaultWalletAddress}/balances_v2/`, {
             params: {
                 'quote-currency': 'USD',
                 'format':'JSON',
                 'nft':'false',
                 'no-nft-fetch':'true',
-                'key':`${process.env.COVALENT_API_KEY}`
+                'key':`${COVALENT_API_KEY}`
+            }
+        });
+
+        let tokens = response.data.data.items;
+
+        console.log(tokens);
+        let speakOutput = '';
+
+        tokens.map(async function(token) { // Map through the results and for each run the code below
+            if (token.native_token === true ) {
+                if (token.contract_decimals > 0) {
+                    balance = parseInt(token.balance) / Math.pow(10, token.contract_decimals);
+                } else {
+                    balance = parseInt(token.balance);
+                }
+                speakOutput = `You have ${balance.toFixed(4)} ${token.contract_name} in your wallet, worth ${parseFloat(token.quote).toFixed(2)} USD.`;
+            }
+        });
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
+            .getResponse();
+    }
+};
+
+const CheckNativeENSBalanceHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CheckNativeENSBalanceIntent';
+    },
+    async handle(handlerInput) {
+        // use axios to fetch data from covalenthq
+        const response = await axios.get(`https://api.covalenthq.com/v1/1/address/${walletData.defaultEnsAddress}/balances_v2/`, {
+            params: {
+                'quote-currency': 'USD',
+                'format':'JSON',
+                'nft':'false',
+                'no-nft-fetch':'true',
+                'key':`${COVALENT_API_KEY}`
             }
         });
 
@@ -157,9 +237,13 @@ exports.handler = Alexa.SkillBuilders.custom()
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler,
+        CheckNativeENSBalanceHandler,
         IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
         ) 
     .addErrorHandlers(
         ErrorHandler,
         )
+    .withPersistenceAdapter(
+        persistenceAdapter
+    )
     .lambda();

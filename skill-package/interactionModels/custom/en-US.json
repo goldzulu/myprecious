@@ -41,6 +41,17 @@
                     ]
                 },
                 {
+                    "name": "CheckNativeENSBalanceIntent",
+                    "slots": [],
+                    "samples": [
+                        "what is my ENS wallet balance",
+                        "ENS wallet balance",
+                        "how much do i have in my ENS wallet",
+                        "check my ENS balance please",
+                        "the balance of my ENS wallet"
+                    ]
+                },
+                {
                     "name": "AMAZON.NavigateHomeIntent",
                     "samples": []
                 }
