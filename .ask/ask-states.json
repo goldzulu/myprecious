@@ -8,8 +8,8 @@
             "default": {
               "lambda": {
                 "arn": "arn:aws:lambda:us-east-1:722383165419:function:ask-myprecious-default-default-1664054437490",
-                "lastModified": "2022-09-24T21:58:19.000+0000",
-                "revisionId": "c304b66a-1dd6-4ed2-a457-7c9bd644b4ec"
+                "lastModified": "2022-09-25T18:58:12.000+0000",
+                "revisionId": "675613b4-eb7b-4cd5-a538-43a9faef9609"
               },
               "iamRole": "arn:aws:iam::722383165419:role/ask-lambda-myprecious-1664054436544"
             }
@@ -18,11 +18,11 @@
       },
       "skillId": "amzn1.ask.skill.5c11eda1-b744-4555-a2ea-d87fbf5aa47e",
       "skillMetadata": {
-        "lastDeployHash": "ERbisabEtA478t+ciaZQE8KCd9Y="
+        "lastDeployHash": "TvgawTSZyhnZLBIkghdf2ZXI0js="
       },
       "code": {
         "default": {
-          "lastDeployHash": "Ig/rKreg68Ev7Sl78XLogMsCjFo="
+          "lastDeployHash": "/JX/O8rbwOaB7A2xZWqMGXhsMss="
         }
       }
     }

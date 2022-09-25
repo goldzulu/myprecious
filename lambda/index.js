@@ -119,6 +119,10 @@ const CheckNativeENSBalanceHandler = {
     },
     async handle(handlerInput) {
         // use axios to fetch data from covalenthq
+        console.log("ENS Wallet Ballance: ");
+        
+        console.log("walletData: ", walletData);
+
         const response = await axios.get(`https://api.covalenthq.com/v1/1/address/${walletData.defaultEnsAddress}/balances_v2/`, {
             params: {
                 'quote-currency': 'USD',
@@ -233,11 +237,11 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         HelloWorldIntentHandler,
+        CheckNativeENSBalanceHandler,
         CheckNativeBalanceHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler,
-        CheckNativeENSBalanceHandler,
         IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
         ) 
     .addErrorHandlers(
